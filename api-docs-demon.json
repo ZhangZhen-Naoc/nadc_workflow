@@ -1,0 +1,1617 @@
+{
+  "swagger": "2.0",
+  "info": { "title": "流水线相关接口" },
+  "host": "123.56.102.90:31602",
+  "basePath": "/flowline",
+  "tags": [
+    {
+      "name": "流水线YML配置",
+      "description": "Pipeline YML repository configuration"
+    },
+    { "name": "流水线业务", "description": "Pipeline business" },
+    { "name": "流水线产品业务", "description": "Pipeline product business" },
+    { "name": "流水线看板", "description": "Display Board Controller" },
+    {
+      "name": "流水线配置管理",
+      "description": "Pipeline configuration management"
+    }
+  ],
+  "paths": {
+    "/board/delBoard": {
+      "delete": {
+        "tags": ["流水线看板"],
+        "summary": "删除看板",
+        "operationId": "delBoardUsingDELETE",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "204": { "description": "No Content" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/board/get": {
+      "get": {
+        "tags": ["流水线看板"],
+        "summary": "获取看板信息",
+        "operationId": "getBoardInfoUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "pipeline_creator",
+            "in": "query",
+            "description": "创建者",
+            "required": false,
+            "type": "string",
+            "allowEmptyValue": false
+          },
+          {
+            "name": "pipeline_uuid",
+            "in": "query",
+            "description": "流水线ID",
+            "required": false,
+            "type": "string",
+            "allowEmptyValue": false
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "userId",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/board/getBoardDataBySourceId": {
+      "get": {
+        "tags": ["流水线看板"],
+        "summary": "根据来源标识获取看板数据",
+        "operationId": "getBoardDataBySourceIdUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "dataSourceId",
+            "in": "query",
+            "description": "dataSourceId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo«DisplayBoardDataVo»" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/board/getBoardSetting": {
+      "get": {
+        "tags": ["流水线看板"],
+        "summary": "获取流水线看板布局",
+        "operationId": "getBoardSettingUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "userId",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/board/save": {
+      "post": {
+        "tags": ["流水线看板"],
+        "summary": "保存看板信息",
+        "operationId": "saveInfoUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "boardInfoVo",
+            "description": "保存看板信息",
+            "required": true,
+            "schema": { "$ref": "#/definitions/动态看板保存信息" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/board/saveBoardSetting": {
+      "post": {
+        "tags": ["流水线看板"],
+        "summary": "保存流水线看板布局",
+        "operationId": "saveBoardSettingUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "layoutCount",
+            "in": "query",
+            "description": "流水线看板列数",
+            "required": true,
+            "type": "integer",
+            "default": 2,
+            "format": "int32",
+            "allowEmptyValue": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/dataProduct/del/{id}": {
+      "delete": {
+        "tags": ["流水线产品业务"],
+        "summary": "数据产品订阅管理-删除",
+        "operationId": "delProductUsingDELETE",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "204": { "description": "No Content" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/dataProduct/productList": {
+      "post": {
+        "tags": ["流水线产品业务"],
+        "summary": "数据产品动态列表",
+        "operationId": "getProductListUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "paramMap",
+            "description": "{\n flowLineSettesId:  流水线ID \n flowLineSettesName: 流水线名称 （模糊）\n outputProductName: 产品名称（模糊） \n outputLevel: 产品级别 \n phase: 执行状态（1-成功 0-失败）\n startTime: 结束时间（开始时间）\n endTime：结束时间（结束时间的结束时间）\n page:（必传）页码\n pageSize:（必传）每页大小}",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/dataProduct/productNameList": {
+      "get": {
+        "tags": ["流水线产品业务"],
+        "summary": "数据产品订阅管理-产品名称下拉列表",
+        "operationId": "getProductNameListUsingGET",
+        "produces": ["*/*"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/dataProduct/productPageList": {
+      "post": {
+        "tags": ["流水线产品业务"],
+        "summary": "数据产品订阅管理-数据订阅列表",
+        "operationId": "getProductPageListUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "paramMap",
+            "description": "{\n page：(必传) 页码\n pageSize : (必传) 每页大小}",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/dataProduct/save": {
+      "post": {
+        "tags": ["流水线产品业务"],
+        "summary": "数据产品订阅管理-添加产品订阅",
+        "operationId": "saveProductUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "paramMap",
+            "description": "{\n id：(必传)产品名称ID\n describe：(非必传)描述}",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/dataProduct/view/{id}": {
+      "get": {
+        "tags": ["流水线产品业务"],
+        "summary": "数据产品订阅管理-详情",
+        "operationId": "saveProductUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/displayConfig/addDisplayConfig": {
+      "post": {
+        "tags": ["流水线业务"],
+        "summary": "流水线状态展示设置相关接口-设置保存",
+        "operationId": "addDisplayConfigUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "displayConfigList",
+            "description": "[{flowLineSettesId  流水线id}]",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/cn.svom.database.entity.FlowLineDisplayConfig"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/displayConfig/getFlowLineProductInfo": {
+      "get": {
+        "tags": ["流水线业务"],
+        "summary": "获取流水线产品信息",
+        "operationId": "getFlowLineProductInfoUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "flowCreator",
+            "in": "query",
+            "description": "流水线创建者",
+            "required": true,
+            "type": "string",
+            "allowEmptyValue": false
+          },
+          {
+            "name": "flowUuid",
+            "in": "query",
+            "description": "流水线ID",
+            "required": true,
+            "type": "string",
+            "allowEmptyValue": false
+          },
+          {
+            "name": "pageIndex",
+            "in": "query",
+            "description": "当前页",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "allowEmptyValue": false,
+            "x-example": 1
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "当前容量",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "allowEmptyValue": false,
+            "x-example": 20
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/displayConfig/getFlowlineProductNode": {
+      "get": {
+        "tags": ["流水线业务"],
+        "summary": "获取流水线产品节点表格",
+        "operationId": "getFlowlineProductNodeUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "path",
+            "in": "query",
+            "description": "产品路径",
+            "required": true,
+            "type": "string",
+            "allowEmptyValue": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/displayConfig/getThumbnail": {
+      "get": {
+        "tags": ["流水线业务"],
+        "summary": "获取缩略图",
+        "operationId": "getThumbnailUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "path",
+            "in": "query",
+            "description": "产品路径",
+            "required": true,
+            "type": "string",
+            "allowEmptyValue": false
+          }
+        ],
+        "responses": {
+          "200": { "description": "OK" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/displayConfig/saveFlowLineProductDate": {
+      "post": {
+        "tags": ["流水线业务"],
+        "summary": "保存流水线产品数据",
+        "operationId": "saveFlowLineProductDateUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "boardInfoVo",
+            "description": "boardInfoVo",
+            "required": true,
+            "schema": { "$ref": "#/definitions/动态看板保存信息" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/displayConfig/saveFlowLineProductInfo": {
+      "post": {
+        "tags": ["流水线业务"],
+        "summary": "保存流水线产品信息",
+        "operationId": "saveFlowLineProductInfoUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "flowLineProductInfo",
+            "description": "flowLineProductInfo",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/cn.svom.database.entity.FlowLineProductInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/flowLineInfoList": {
+      "post": {
+        "tags": ["流水线业务"],
+        "summary": "流水线状态展示-节点详情",
+        "operationId": "flowLineInfoListUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "flowLineInfo",
+            "description": "{flowLineSettesId  流水线id【必传】flowLinePhase  执行状态：1:成功，2:失败startTime 开始时间endTime  结束时间}",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/cn.svom.database.entity.FlowLineInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/flowlineConfig/refresResult": {
+      "get": {
+        "tags": ["流水线YML配置"],
+        "summary": "查看刷新状态",
+        "operationId": "refreshResultUsingGET",
+        "produces": ["*/*"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/flowlineConfig/refresh": {
+      "post": {
+        "tags": ["流水线YML配置"],
+        "summary": "刷新",
+        "operationId": "refreshFlowLineListUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/flowlineConfig/save": {
+      "post": {
+        "tags": ["流水线YML配置"],
+        "summary": "保存配置",
+        "operationId": "saveConfigUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "flowLineConfig",
+            "description": "{\n configUrl: (必传) yml文件git地址 \n gitUser: (必传) git用户名 \n gitPassword: (必传) git密码 \n branch: (必传) 分支名称 \n description:  配置文件描述 }",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/cn.svom.database.entity.FlowLineConfig"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/flowlineConfig/view": {
+      "get": {
+        "tags": ["流水线YML配置"],
+        "summary": "查看配置详情",
+        "operationId": "getConfigInfUsingGET",
+        "produces": ["*/*"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/flowlineSet/dataSouceList": {
+      "get": {
+        "tags": ["流水线配置管理"],
+        "summary": "数据源列表",
+        "operationId": "getDataSourceListUsingGET",
+        "produces": ["*/*"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/flowlineSet/del/{id}": {
+      "delete": {
+        "tags": ["流水线配置管理"],
+        "summary": "删除",
+        "operationId": "deleteByIdUsingDELETE",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "204": { "description": "No Content" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/flowlineSet/flowLineDetail": {
+      "get": {
+        "tags": ["流水线配置管理"],
+        "summary": "流水线状态显示页面【流水线详情】",
+        "operationId": "flowLineDetailUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "流水线id",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/flowlineSet/flowLineList": {
+      "get": {
+        "tags": ["流水线配置管理"],
+        "summary": "流水线状态展示-设置列表",
+        "operationId": "flowLineListUsingGET",
+        "produces": ["*/*"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/flowlineSet/flowLineParams": {
+      "get": {
+        "tags": ["流水线配置管理"],
+        "summary": "流水线启动-参数信息",
+        "operationId": "flowLineParamsUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/flowlineSet/listFlowLineByUserId": {
+      "get": {
+        "tags": ["流水线配置管理"],
+        "summary": "查询当前用户流水线",
+        "operationId": "listFlowLineByUserIdUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "userId",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/flowlineSet/recovery": {
+      "post": {
+        "tags": ["流水线配置管理"],
+        "summary": "恢复",
+        "operationId": "recoveryUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/flowlineSet/update": {
+      "post": {
+        "tags": ["流水线配置管理"],
+        "summary": "设置",
+        "operationId": "updateByIdUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "flowLineSettes",
+            "description": "{\n id: (必传) 流水线编号\n flowLineName: (必传) 流水线名称\n datasourceId: (必传) 数据源id\n flowLineDescribe: 流水线描述}",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/cn.svom.database.entity.FlowLineSettes"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/flowlineSet/view/{id}": {
+      "get": {
+        "tags": ["流水线配置管理"],
+        "summary": "详情",
+        "operationId": "getFlowLineByIdUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/flowlineSet/ymlList": {
+      "post": {
+        "tags": ["流水线配置管理"],
+        "summary": "查询流水线管理列表(分页)",
+        "operationId": "getPageListUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "flowLineListCondition",
+            "description": "flowLineListCondition",
+            "required": true,
+            "schema": { "$ref": "#/definitions/FlowLineListCondition" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/getFlowLineInfo": {
+      "get": {
+        "tags": ["流水线业务"],
+        "summary": "获取流水线相关信息--查看流程图数据",
+        "operationId": "getFlowLineInfoUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "query",
+            "description": "流水线唯一标识",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo«JSONObject»" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/getTodayFlowLineCount": {
+      "get": {
+        "tags": ["流水线业务"],
+        "summary": "流水线日均启动量",
+        "operationId": "getTodayFlowLineCountUsingGET",
+        "produces": ["*/*"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "type": "integer", "format": "int64" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/list": {
+      "get": {
+        "tags": ["流水线业务"],
+        "summary": "getFlowLineList",
+        "operationId": "getFlowLineListUsingGET",
+        "produces": ["*/*"],
+        "responses": {
+          "200": { "description": "OK", "schema": { "type": "object" } },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/nodeLog": {
+      "get": {
+        "tags": ["流水线业务"],
+        "summary": "流水线查询补充节点日志",
+        "operationId": "nodeLogUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "flowLineName",
+            "in": "query",
+            "description": "流水线名字",
+            "required": true,
+            "type": "string",
+            "allowEmptyValue": false
+          },
+          {
+            "name": "namespace",
+            "in": "query",
+            "description": "命名空间",
+            "required": true,
+            "type": "string",
+            "allowEmptyValue": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/nodeLogByUuid": {
+      "get": {
+        "tags": ["流水线业务"],
+        "summary": "流水线uuid查询补充节点日志",
+        "operationId": "nodeLogByUuidUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "query",
+            "description": "uuid",
+            "required": true,
+            "type": "string",
+            "allowEmptyValue": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/nodeParameter": {
+      "get": {
+        "tags": ["流水线业务"],
+        "summary": "流水线状态展示--查看--节点参数",
+        "operationId": "nodeParameterUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "nodeId",
+            "in": "query",
+            "description": "节点id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "uuid",
+            "in": "query",
+            "description": "uuid",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/product": {
+      "get": {
+        "tags": ["流水线业务"],
+        "summary": "获取流水线的产品数据",
+        "description": "参考：产品数据模型v2.md",
+        "operationId": "getFlowLineProductListV2UsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "datatype",
+            "in": "query",
+            "description": "产品类型名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "ext",
+            "in": "query",
+            "description": "文件后缀名称（不带点）",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "description": "流水线节点名称(tagid)",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "uuid",
+            "in": "query",
+            "description": "业务标识",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/productDetails": {
+      "get": {
+        "tags": ["流水线业务"],
+        "summary": "获取流水线的产品数据具体的图片base64数据",
+        "operationId": "getFlowLineProductDetailsUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "数据名称(图片的名称)",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/productDisplay/getProductPanelSubscribe": {
+      "post": {
+        "tags": ["流水线产品业务"],
+        "summary": "流水线产品展示看板列表",
+        "operationId": "getProductPanelSubscribeUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "productPanelSubscribeRequest",
+            "description": "productPanelSubscribeRequest",
+            "required": true,
+            "schema": { "$ref": "#/definitions/ProductPanelSubscribeRequest" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/productDisplay/getProuductDisplay": {
+      "post": {
+        "tags": ["流水线产品业务"],
+        "summary": "流水线产品展示信息",
+        "operationId": "getProuductDisplayUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/productDisplay/getProuductList": {
+      "post": {
+        "tags": ["流水线产品业务"],
+        "summary": "流水线看板产品列表",
+        "operationId": "getProuductListUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "productListRequest",
+            "description": "productListRequest",
+            "required": true,
+            "schema": { "$ref": "#/definitions/ProductListRequest" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/productDisplay/savePanelSubscribe": {
+      "post": {
+        "tags": ["流水线产品业务"],
+        "summary": "产品看板订阅保存",
+        "operationId": "savePanelSubscribeUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "productPanelSubscribeList",
+            "description": "productPanelSubscribeList",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/cn.svom.database.entity.ProductPanelSubscribe"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/productImages": {
+      "get": {
+        "tags": ["流水线业务"],
+        "summary": "流水线查看-图片展示",
+        "operationId": "getFlowLineProductImagesUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "数据名称(图片的名称)",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "type": "string", "format": "byte" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/productList": {
+      "get": {
+        "tags": ["流水线业务"],
+        "summary": "获取流水线的产品数据列表--查看--产品参数",
+        "operationId": "getFlowLineProductListUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "ext",
+            "in": "query",
+            "description": "文件后缀过滤",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "流水线节点名称过滤(tagid)",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "uuid",
+            "in": "query",
+            "description": "业务标识",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/refreshStatus": {
+      "get": {
+        "tags": ["流水线业务"],
+        "summary": "页面刷新流水线执行状态--查看",
+        "operationId": "refreshStatusUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "query",
+            "description": "流水线唯一标识",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/retry": {
+      "put": {
+        "tags": ["流水线业务"],
+        "summary": "流水线重试",
+        "operationId": "retryUsingPUT",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "flowLineName",
+            "in": "query",
+            "description": "流水线名字",
+            "required": true,
+            "type": "string",
+            "allowEmptyValue": false
+          },
+          {
+            "name": "namespace",
+            "in": "query",
+            "description": "命名空间",
+            "required": true,
+            "type": "string",
+            "allowEmptyValue": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/retryByUuid": {
+      "get": {
+        "tags": ["流水线业务"],
+        "summary": "流水线重试",
+        "operationId": "retryByUuidUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "query",
+            "description": "uuid",
+            "required": true,
+            "type": "string",
+            "allowEmptyValue": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/start": {
+      "post": {
+        "tags": ["流水线业务"],
+        "summary": "启动流水线",
+        "operationId": "startTheContainerUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "flowLineStartParameter",
+            "description": "flowLineStartParameter",
+            "required": true,
+            "schema": { "$ref": "#/definitions/FlowLineStartParameter" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/terminate": {
+      "put": {
+        "tags": ["流水线业务"],
+        "summary": "终止流水线",
+        "operationId": "terminateUsingPUT",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "flowLineName",
+            "in": "query",
+            "description": "流水线名字",
+            "required": true,
+            "type": "string",
+            "allowEmptyValue": false
+          },
+          {
+            "name": "namespace",
+            "in": "query",
+            "description": "命名空间",
+            "required": true,
+            "type": "string",
+            "allowEmptyValue": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "201": { "description": "Created" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    },
+    "/workflowLogs": {
+      "get": {
+        "tags": ["流水线业务"],
+        "summary": "获取流水线节点日志--查看--执行日志",
+        "operationId": "workflowLogsUsingGET",
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "nodeId",
+            "in": "query",
+            "description": "流水线节点唯一标识",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "uuid",
+            "in": "query",
+            "description": "任务唯一标识",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/ResultInfo" }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "X-AUTH-TOKEN": ["global"] }],
+        "deprecated": false
+      }
+    }
+  }
+}

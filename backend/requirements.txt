@@ -1,0 +1,7 @@
+Flask
+APIFlask
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-CORS
+python-dotenv
+marshmallow

@@ -25,19 +25,31 @@
           />
         </el-form-item>
 
-        <el-form-item label="YAML配置">
-          <div class="yaml-editor-container">
-            <el-input
-              v-model="form.yamlConfig"
-              type="textarea"
-              :rows="20"
-              placeholder="请输入YAML格式的流水线配置"
-              class="yaml-editor"
-            />
-            <div class="yaml-actions">
-              <el-button size="small" @click="formatYaml">格式化</el-button>
-              <el-button size="small" @click="validateYaml">验证</el-button>
-            </div>
+        <el-form-item label="流水线配置" class="pipeline-config-form-item" style="width: 100%">
+          <div style="width: 100%">
+            <el-tabs v-model="activeTab" type="border-card" style="width: 100%">
+              <el-tab-pane label="可视化编辑" name="visual">
+                <div class="workflow-editor-wrapper" style="width: 100%">
+                  <ArgoWorkflowEditor v-model="form.yamlConfig" style="width: 100%" />
+                </div>
+              </el-tab-pane>
+              <el-tab-pane label="YAML编辑" name="yaml">
+                <div class="yaml-editor-container" style="width: 100%">
+                  <el-input
+                    v-model="form.yamlConfig"
+                    type="textarea"
+                    :rows="20"
+                    placeholder="请输入YAML格式的流水线配置"
+                    class="yaml-editor"
+                    style="width: 100%"
+                  />
+                  <div class="yaml-actions">
+                    <el-button size="small" @click="formatYaml">格式化</el-button>
+                    <el-button size="small" @click="validateYaml">验证</el-button>
+                  </div>
+                </div>
+              </el-tab-pane>
+            </el-tabs>
           </div>
         </el-form-item>
       </el-form>
@@ -50,6 +62,7 @@
 </template>
 
 <script setup lang="ts">
+import ArgoWorkflowEditor from '@/components/ArgoWorkflowEditor.vue'
 import http from '@/utils/http'
 import { ElMessage } from 'element-plus'
 import * as yaml from 'js-yaml'
@@ -74,8 +87,28 @@ const saving = ref(false)
 const form = ref({
   name: '',
   description: '',
-  yamlConfig: '',
+  yamlConfig: `apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: example-workflow
+spec:
+  templates:
+  - name: main
+    steps:
+    - - name: step1
+        container:
+          image: alpine:latest
+          command: [echo]
+          args: ["Hello World"]
+    - - name: step2
+        container:
+          image: alpine:latest
+          command: [echo]
+          args: ["Step 2 completed"]
+`,
 })
+
+const activeTab = ref('visual')
 
 const fetchTemplate = async () => {
   const templateId = route.params.templateId
@@ -113,7 +146,7 @@ const formatYaml = () => {
       noRefs: true,
     })
     ElMessage.success('格式化成功')
-  } catch (error) {
+  } catch {
     ElMessage.error('YAML格式错误，无法格式化')
   }
 }
@@ -134,7 +167,7 @@ const saveTemplate = async () => {
   let config: Record<string, unknown>
   try {
     config = yaml.load(form.value.yamlConfig) as Record<string, unknown>
-  } catch (error) {
+  } catch {
     ElMessage.error('YAML格式错误，请检查配置')
     return
   }
@@ -191,5 +224,12 @@ onMounted(() => {
   margin-top: 10px;
   display: flex;
   gap: 10px;
+}
+
+.workflow-editor-wrapper {
+  height: 600px;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  overflow: hidden;
 }
 </style>

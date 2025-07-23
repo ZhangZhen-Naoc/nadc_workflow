@@ -20,6 +20,16 @@ const router = createRouter({
       component: () => import('@/views/TemplateEdit.vue'),
     },
     {
+      path: '/provenance',
+      name: 'Provenance',
+      component: () => import('@/views/ProvenanceView.vue'),
+    },
+    {
+      path: '/entities',
+      name: 'EntityList',
+      component: () => import('@/views/EntityList.vue'),
+    },
+    {
       path: '/about',
       name: 'about',
       // route level code-splitting

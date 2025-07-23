@@ -1,6 +1,6 @@
 from apiflask import APIBlueprint
 
-from models import Action
+from app.models import Action
 from schemas import ActionSchema
 
 # 创建流水线节点蓝图

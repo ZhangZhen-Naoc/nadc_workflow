@@ -1,23 +1,28 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { RouterView } from 'vue-router'
+const { locale } = useI18n()
+function changeLang(lang: string) {
+  locale.value = lang
+}
 </script>
 
 <template>
-  <div class="app-container">
-    <header>
-      <img alt="Vue logo" class="logo" src="@/assets/nadc.png" width="100" />
-
-      <div class="wrapper">
-        <nav>
-          <RouterLink to="/">Home</RouterLink>
-          <RouterLink to="/about">About</RouterLink>
-        </nav>
-      </div>
-    </header>
-
-    <main class="main-content">
-      <RouterView />
-    </main>
+  <div>
+    <div style="position: absolute; right: 20px; top: 20px; z-index: 1000">
+      <el-dropdown>
+        <span class="el-dropdown-link">
+          {{ $t('menu.language') }}
+        </span>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item @click="changeLang('en')">English</el-dropdown-item>
+            <el-dropdown-item @click="changeLang('zh')">中文</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+    </div>
+    <router-view />
   </div>
 </template>
 

@@ -2,19 +2,35 @@ import json
 from datetime import datetime, timedelta
 
 from app import app, db
-from models import Action, Project, Workflow, WorkflowTemplate
+from app.models import Agent  # IVOA溯源模型
+from app.models import (
+    Action,
+    Activity,
+    ActivityDescription,
+    ConfigFile,
+    DatasetDescription,
+    DatasetEntity,
+    Entity,
+    EntityDescription,
+    Parameter,
+    Project,
+    Used,
+    ValueDescription,
+    ValueEntity,
+    WasAssociatedWith,
+    WasAttributedTo,
+    WasConfiguredBy,
+    WasDerivedFrom,
+    WasGeneratedBy,
+    WasInformedBy,
+    Workflow,
+    WorkflowTemplate,
+)
+from app.workflow_management import create_activity, create_entity, post_run
 
 
-def insert_test_data():
-    """插入测试数据"""
-
-    # 清空现有数据
-    Action.query.delete()
-    Workflow.query.delete()
-    WorkflowTemplate.query.delete()
-    Project.query.delete()
-
-    # 创建项目
+def create_projects():
+    """创建项目测试数据"""
     project1 = Project(
         name="机器学习项目",
         description=("用于训练和部署机器学习模型的自动化流水线"),
@@ -31,7 +47,11 @@ def insert_test_data():
     db.session.add_all([project1, project2, project3])
     db.session.commit()
 
-    # 创建工作流模板
+    return project1, project2, project3
+
+
+def create_workflow_templates(project1, project2, project3):
+    """创建工作流模板测试数据"""
     ml_template_config = {
         "stages": [
             {
@@ -174,7 +194,11 @@ def insert_test_data():
     db.session.add_all([template1, template2, template3])
     db.session.commit()
 
-    # 创建工作流实例
+    return template1, template2, template3
+
+
+def create_workflows(template1, template2, template3, project1, project2, project3):
+    """创建工作流实例测试数据"""
     now = datetime.utcnow()
 
     workflow1 = Workflow(
@@ -213,6 +237,11 @@ def insert_test_data():
     db.session.add_all([workflow1, workflow2, workflow3, workflow4])
     db.session.commit()
 
+    return workflow1, workflow2, workflow3, workflow4
+
+
+def create_actions(workflow1, workflow2, workflow4):
+    """创建动作节点测试数据"""
     # 为工作流1创建动作节点（已完成）
     action1_1 = Action(
         name="数据预处理",
@@ -365,11 +394,93 @@ def insert_test_data():
     )
     db.session.commit()
 
+
+def create_provenance_data():
+    """创建溯源数据"""
+    lv0, att, orb, mkf = (
+        create_entity("lv0"),
+        create_entity("att"),
+        create_entity("orb"),
+        create_entity("mkf"),
+    )
+    obs = create_activity("Observation", informers=[], inputs=[])
+    post_run(obs, [lv0, att, orb, mkf])
+
+    # lv1
+    lv1 = create_entity("lv1")
+    data_generation_software = create_activity(
+        "Data Generation Software", informers=[obs], inputs=[lv0, att, orb, mkf]
+    )
+    post_run(data_generation_software, [lv1])
+
+    # lv2
+    cleaned_events = create_entity("Cleaned Events")
+    caldb = create_entity("caldb")
+    data_screen_software = create_activity(
+        "Data Screen Software", informers=[data_generation_software], inputs=[caldb]
+    )
+    post_run(data_screen_software, [cleaned_events])
+
+    # lv3
+    img, cat, lc, spec = (
+        create_entity("Image"),
+        create_entity("Catalog"),
+        create_entity("Light Curve"),
+        create_entity("Spectrum"),
+    )
+    data_analysis_software = create_activity(
+        "Data Analysis Software",
+        informers=[data_screen_software],
+        inputs=[cleaned_events],
+    )
+    post_run(data_analysis_software, [img, cat, lc, spec])
+
+
+def insert_test_data():
+    """插入测试数据"""
+    # 删除所有表并重新创建
+    print("正在删除所有表...")
+    db.drop_all()
+    print("正在创建所有表...")
+    db.create_all()
+    print("数据库表创建完成！")
+
+    # 1. 创建项目管理模块测试数据
+    print("创建项目管理模块测试数据...")
+    project1, project2, project3 = create_projects()
+
+    # 2. 创建工作流模板模块测试数据
+    print("创建工作流模板模块测试数据...")
+    template1, template2, template3 = create_workflow_templates(
+        project1, project2, project3
+    )
+
+    # 3. 创建工作流实例模块测试数据
+    print("创建工作流实例模块测试数据...")
+    workflow1, workflow2, workflow3, workflow4 = create_workflows(
+        template1, template2, template3, project1, project2, project3
+    )
+
+    # 4. 创建动作节点模块测试数据
+    print("创建动作节点模块测试数据...")
+    create_actions(workflow1, workflow2, workflow4)
+
+    create_provenance_data()
+
     print("测试数据插入完成！")
     print(f"创建了 {Project.query.count()} 个项目")
     print(f"创建了 {WorkflowTemplate.query.count()} 个工作流模板")
     print(f"创建了 {Workflow.query.count()} 个工作流实例")
     print(f"创建了 {Action.query.count()} 个动作节点")
+
+    # IVOA溯源数据统计
+    print(f"创建了 {Entity.query.count()} 个实体")
+    print(f"创建了 {Activity.query.count()} 个活动")
+    print(f"创建了 {Agent.query.count()} 个代理")
+    print(f"创建了 {Used.query.count()} 个使用关系")
+    print(f"创建了 {WasGeneratedBy.query.count()} 个生成关系")
+    print(f"创建了 {WasDerivedFrom.query.count()} 个衍生关系")
+    print(f"创建了 {WasInformedBy.query.count()} 个信息传递关系")
 
 
 if __name__ == "__main__":

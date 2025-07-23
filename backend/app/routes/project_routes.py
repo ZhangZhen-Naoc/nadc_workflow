@@ -1,7 +1,7 @@
 from apiflask import APIBlueprint
 
-import models
-from models import Project
+import app.models as models
+from app.models import Project
 from schemas import ProjectListResponse, ProjectSchema
 
 # 创建项目蓝图

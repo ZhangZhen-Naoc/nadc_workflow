@@ -1,39 +1,42 @@
-# NADC Workflow - 天文数据处理流水线管理系统
+# NADC Workflow - Astronomical Data Processing Pipeline Management System
 
-## 项目介绍
+## Project Introduction
 
-天文数据处理流水线管理系统，提供流水线配置、实例管理和节点监控功能。
+The Astronomical Data Processing Pipeline Management System provides pipeline configuration, instance management, and node monitoring functionalities.
 
-## 模型架构
+## Model Architecture
 
-从大到小： 项目 - 流水线配置 - 流水线实例 - 流水线节点
+From large to small: Project - Workflow Template - Workflow Instance - Workflow Node
 
-## 中英文对照表（变量名）：
+## Chinese-English Glossary (Variable Names):
 
-| 中文       | 英文             | 备注                             |
-| ---------- | ---------------- | -------------------------------- |
-| 项目       | Project          | 项目名称                         |
-| 流水线配置 | WorkflowTemplate | 一个项目包含一组流水线配置       |
-| 流水线实例 | Workflow         | 依据流水线配置创建的实例         |
-| 流水线节点 | Action           | 一个流水线实例包含的多个执行步骤 |
+| Chinese    | English          | Notes                                           |
+| ---------- | ---------------- | ----------------------------------------------- |
+| 项目       | Project          | Project name                                    |
+| 流水线配置 | WorkflowTemplate | A project contains a set of workflow templates  |
+| 流水线实例 | Workflow         | Instance created based on a workflow template   |
+| 流水线节点 | Activity         | Multiple execution steps in a workflow instance |
 
-## 技术栈
+## Tech Stack
 
-- 前端： Vue3 + TypeScript + Element Plus + VueFlow
-- 后端： Flask + SQLAlchemy
-- 后台执行： Argo Workflow + Rabbit MQ
+- Frontend: Vue3 + TypeScript + Element Plus + VueFlow
+- Backend: Flask + SQLAlchemy
+- Backend Execution: Argo Workflow + Rabbit MQ
 
-## 特色功能
+## Key Features
 
-### 流水线配置管理
+### Workflow Configuration Management
 
-拖拽式的可视化配置，同时支持直接对 YAML 的文本编辑和配置文件格式检查，兼具易用性和灵活性。
-![可视化配置](./README_img/visualized_orc.png)
+Drag-and-drop visual configuration, with support for direct YAML text editing and configuration file format checking, combining ease of use and flexibility.
+![Visual Configuration](./README_img/visualized_orc.png)
 
-除了普通的 DAG（有向无环图）外，还支持`Cyclic`和`Unknown Next Actions`两种模式。[这两种模式是什么？有哪些场景？](https://journalofcloudcomputing.springeropen.com/articles/10.1186/s13677-021-00229-7)
+In addition to standard DAGs (Directed Acyclic Graphs), it also supports `Cyclic` and `Unknown Next Actions` modes. [What are these two modes? In which scenarios are they used?](https://journalofcloudcomputing.springeropen.com/articles/10.1186/s13677-021-00229-7)
 
-![不止DAG](./README_img/not_only_DAG.png)
+![Not Only DAG](./README_img/not_only_DAG.png)
 
-（示意图来源：Krämer, M., Würz, H. M., & Altenhofen, C. (2021). Executing cyclic scientific workflows in the cloud. Journal of Cloud Computing, 10(1), 25. https://doi.org/10.1186/s13677-021-00229-7）
+(Diagram source: Krämer, M., Würz, H. M., & Altenhofen, C. (2021). Executing cyclic scientific workflows in the cloud. Journal of Cloud Computing, 10(1), 25. https://doi.org/10.1186/s13677-021-00229-7)
 
-### 数据溯源
+### Data Provenance
+
+Follow the IVOA Provenance Model, support for data provenance graph display and search.
+![Data Provenance](./README_img/provenance_graph.png)

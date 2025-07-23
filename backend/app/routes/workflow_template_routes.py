@@ -3,8 +3,8 @@ from datetime import datetime
 from apiflask import APIBlueprint
 from flask import request
 
-import models
-from models import Workflow, WorkflowTemplate
+import app.models as models
+from app.models import Workflow, WorkflowTemplate
 from schemas import WorkflowSchema, WorkflowTemplateListResponse, WorkflowTemplateSchema
 
 # 创建流水线配置蓝图

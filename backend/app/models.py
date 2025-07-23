@@ -1,9 +1,10 @@
 from datetime import datetime
+from typing import List
 
 from sqlalchemy import DateTime, Float, Integer, Text
 from sqlalchemy.dialects.postgresql import JSON
 
-from extensions import db
+from app.extensions import db
 
 
 class Project(db.Model):
@@ -11,7 +12,7 @@ class Project(db.Model):
 
     __tablename__ = "projects"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
     description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -31,7 +32,7 @@ class WorkflowTemplate(db.Model):
 
     __tablename__ = "workflow_templates"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
     config = db.Column(JSON, nullable=False)  # 流水线配置JSON
@@ -101,7 +102,7 @@ class Entity(db.Model):
 
     __tablename__ = "entity"
 
-    id = db.Column(db.String, primary_key=True, comment="唯一标识符")
+    id = db.Column(db.Integer, primary_key=True, comment="唯一标识符")
     name = db.Column(db.String, nullable=True, comment="人类可读名称")
     location = db.Column(db.String, nullable=True, comment="路径或空间坐标")
     generated_at_time = db.Column(db.DateTime, nullable=True, comment="生成时间")
@@ -112,7 +113,7 @@ class Entity(db.Model):
     was_generated_by = db.relationship(
         "WasGeneratedBy", backref="entity", uselist=False
     )
-    used = db.relationship("Used", backref="entity")
+    # used = db.relationship("Used", backref="entity")
     was_attributed_to = db.relationship("WasAttributedTo", backref="entity")
     was_derived_from = db.relationship(
         "WasDerivedFrom", foreign_keys="WasDerivedFrom.entity_id", backref="entity"
@@ -123,9 +124,42 @@ class Entity(db.Model):
         backref="source_entity",
     )
     entity_description_id = db.Column(
-        db.String, db.ForeignKey("entity_description.id"), nullable=True
+        db.Integer, db.ForeignKey("entity_description.id"), nullable=True
     )
     entity_description = db.relationship("EntityDescription", backref="entities")
+
+    @property
+    def generated_by(self) -> "Activity":
+        """生成该实体的活动"""
+        if self.was_generated_by:
+            return self.was_generated_by.activity
+        return None
+
+    @property
+    def used_by(self) -> List["Activity"]:
+        """使用该实体的活动列表"""
+        return [
+            used_relation.activity
+            for used_relation in Used.query.filter(Used.entity_id == self.id).all()
+        ]
+
+    @property
+    def derived_from(self) -> List["Entity"]:
+        """该实体衍生自的源实体列表"""
+        return [
+            derived_relation.source_entity for derived_relation in self.was_derived_from
+        ]
+
+    @property
+    def derived(self) -> List["Entity"]:
+        """从该实体衍生出的实体列表"""
+        return [derived_relation.entity for derived_relation in self.derived_entities]
+
+    def __repr__(self):
+        return f"Entity(name={self.name}, id={self.id})"
+
+    def __str__(self):
+        return f"Entity(name={self.name}, id={self.id})"
 
 
 class Collection(Entity):
@@ -134,7 +168,7 @@ class Collection(Entity):
     __tablename__ = "collection"
     __mapper_args__ = {"polymorphic_identity": "collection"}
 
-    id = db.Column(db.String, db.ForeignKey("entity.id"), primary_key=True)
+    id = db.Column(db.Integer, db.ForeignKey("entity.id"), primary_key=True)
     members = db.relationship(
         "Entity", secondary="collection_member", backref="collections"
     )
@@ -145,8 +179,8 @@ class CollectionMember(db.Model):
 
     __tablename__ = "collection_member"
     id = db.Column(db.Integer, primary_key=True)
-    collection_id = db.Column(db.String, db.ForeignKey("collection.id"))
-    member_id = db.Column(db.String, db.ForeignKey("entity.id"))
+    collection_id = db.Column(db.Integer, db.ForeignKey("collection.id"))
+    member_id = db.Column(db.Integer, db.ForeignKey("entity.id"))
 
 
 class Activity(db.Model):
@@ -154,21 +188,20 @@ class Activity(db.Model):
 
     __tablename__ = "activity"
 
-    id = db.Column(db.String, primary_key=True, comment="唯一标识符")
+    id = db.Column(db.Integer, primary_key=True, comment="唯一标识符")
     name = db.Column(db.String, nullable=True, comment="人类可读名称")
     start_time = db.Column(db.DateTime, nullable=False, comment="开始时间")
-    end_time = db.Column(db.DateTime, nullable=False, comment="结束时间")
+    end_time = db.Column(db.DateTime, nullable=True, comment="结束时间")
     comment = db.Column(db.String, nullable=True, comment="备注信息")
 
     # 关系定义
-    used = db.relationship("Used", backref="activity")
     was_generated_by = db.relationship("WasGeneratedBy", backref="activity")
     was_associated_with = db.relationship("WasAssociatedWith", backref="activity")
-    was_informed_by = db.relationship(
-        "WasInformedBy",
-        foreign_keys="WasInformedBy.informed_id",
-        backref="informed_activity",
-    )
+    # was_informed_by = db.relationship(
+    #     "WasInformedBy",
+    #     foreign_keys="WasInformedBy.informed_id",
+    #     backref="informed_activity",
+    # )
     informed_activities = db.relationship(
         "WasInformedBy",
         foreign_keys="WasInformedBy.informant_id",
@@ -176,43 +209,89 @@ class Activity(db.Model):
     )
     was_configured_by = db.relationship("WasConfiguredBy", backref="activity")
     activity_description_id = db.Column(
-        db.String, db.ForeignKey("activity_description.id"), nullable=True
+        db.Integer, db.ForeignKey("activity_description.id"), nullable=True
     )
     activity_description = db.relationship("ActivityDescription", backref="activities")
+
+    @property
+    def informants(self) -> List["Activity"]:
+        return [
+            relation.informant
+            for relation in WasInformedBy.query.filter(
+                WasInformedBy.informed_id == self.id
+            ).all()
+        ]
+
+    @property
+    def informed(self) -> List["Activity"]:
+        return [
+            relation.informed
+            for relation in WasInformedBy.query.filter(
+                WasInformedBy.informant_id == self.id
+            ).all()
+        ]
+
+    @property
+    def used(self) -> List["Entity"]:
+        """该活动使用的实体列表"""
+        return [
+            used_relation.entity
+            for used_relation in Used.query.filter(Used.activity_id == self.id).all()
+        ]
+
+    @property
+    def generated(self) -> List["Entity"]:
+        """该活动生成的实体列表"""
+        return [
+            generated_relation.entity for generated_relation in self.was_generated_by
+        ]
+
+    def __repr__(self):
+        return f"Activity(name={self.name}, id={self.id})"
+
+    def __str__(self):
+        return f"Activity(name={self.name}, id={self.id})"
 
 
 # 实体-活动关系类
 class Used(db.Model):
-    """使用关系类（对应文档2.3.1）"""
+    """使用关系类（对应文档2.3.1）
+    表示Entity作为输入参数被Activity使用
+    """
 
     __tablename__ = "used"
 
-    id = db.Column(db.String, primary_key=True)
-    activity_id = db.Column(db.String, db.ForeignKey("activity.id"), nullable=False)
-    entity_id = db.Column(db.String, db.ForeignKey("entity.id"), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"), nullable=False)
+    entity_id = db.Column(db.Integer, db.ForeignKey("entity.id"), nullable=False)
     role = db.Column(db.String, nullable=True, comment="实体在活动中的角色")
     time = db.Column(db.DateTime, nullable=True, comment="使用开始时间")
 
     # 关系定义
     usage_description_id = db.Column(
-        db.String, db.ForeignKey("usage_description.id"), nullable=True
+        db.Integer, db.ForeignKey("usage_description.id"), nullable=True
     )
     usage_description = db.relationship("UsageDescription", backref="used_relations")
 
+    activity = db.relationship("Activity")
+    entity = db.relationship("Entity")
+
 
 class WasGeneratedBy(db.Model):
-    """生成关系类（对应文档2.3.2）"""
+    """生成关系类（对应文档2.3.2）
+    表示Entity作为输出参数被Activity生成
+    """
 
     __tablename__ = "was_generated_by"
 
-    id = db.Column(db.String, primary_key=True)
-    entity_id = db.Column(db.String, db.ForeignKey("entity.id"), nullable=False)
-    activity_id = db.Column(db.String, db.ForeignKey("activity.id"), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    entity_id = db.Column(db.Integer, db.ForeignKey("entity.id"), nullable=False)
+    activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"), nullable=False)
     role = db.Column(db.String, nullable=True, comment="实体在活动中的角色")
 
     # 关系定义
     generation_description_id = db.Column(
-        db.String, db.ForeignKey("generation_description.id"), nullable=True
+        db.Integer, db.ForeignKey("generation_description.id"), nullable=True
     )
     generation_description = db.relationship(
         "GenerationDescription", backref="generated_relations"
@@ -220,32 +299,44 @@ class WasGeneratedBy(db.Model):
 
 
 class WasDerivedFrom(db.Model):
-    """衍生关系类（对应文档2.3.4）"""
+    """衍生关系类（对应文档2.3.4）
+    表示Entity是被另一个Entity处理生成的
+    """
 
     __tablename__ = "was_derived_from"
 
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     entity_id = db.Column(
-        db.String, db.ForeignKey("entity.id"), nullable=False, comment="衍生实体"
+        db.Integer, db.ForeignKey("entity.id"), nullable=False, comment="衍生实体"
     )
     source_entity_id = db.Column(
-        db.String, db.ForeignKey("entity.id"), nullable=False, comment="源实体"
+        db.Integer, db.ForeignKey("entity.id"), nullable=False, comment="源实体"
     )
     role = db.Column(db.String, nullable=True, comment="角色描述")
 
 
 class WasInformedBy(db.Model):
-    """信息传递关系类（对应文档2.3.5）"""
+    """信息传递关系类（对应文档2.3.5）
+    表示Activity的次序关系
+    """
 
     __tablename__ = "was_informed_by"
 
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     informed_id = db.Column(
-        db.String, db.ForeignKey("activity.id"), nullable=False, comment="被通知活动"
+        db.Integer, db.ForeignKey("activity.id"), nullable=False, comment="被通知活动"
     )
     informant_id = db.Column(
-        db.String, db.ForeignKey("activity.id"), nullable=False, comment="通知活动"
+        db.Integer, db.ForeignKey("activity.id"), nullable=False, comment="通知活动"
     )
+
+    @property
+    def informed(self):
+        return Activity.query.get(self.informed_id)
+
+    @property
+    def informant(self):
+        return Activity.query.get(self.informant_id)
 
 
 # 代理及关系类
@@ -254,7 +345,7 @@ class Agent(db.Model):
 
     __tablename__ = "agent"
 
-    id = db.Column(db.String, primary_key=True, comment="唯一标识符")
+    id = db.Column(db.Integer, primary_key=True, comment="唯一标识符")
     name = db.Column(db.String, nullable=False, comment="名称")
     type = db.Column(
         db.Enum("Person", "Organization", "SoftwareAgent", name="agent_type"),
@@ -277,9 +368,9 @@ class WasAssociatedWith(db.Model):
 
     __tablename__ = "was_associated_with"
 
-    id = db.Column(db.String, primary_key=True)
-    activity_id = db.Column(db.String, db.ForeignKey("activity.id"), nullable=False)
-    agent_id = db.Column(db.String, db.ForeignKey("agent.id"), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"), nullable=False)
+    agent_id = db.Column(db.Integer, db.ForeignKey("agent.id"), nullable=False)
     role = db.Column(db.String, nullable=True, comment="代理在活动中的角色")
 
 
@@ -288,9 +379,9 @@ class WasAttributedTo(db.Model):
 
     __tablename__ = "was_attributed_to"
 
-    id = db.Column(db.String, primary_key=True)
-    entity_id = db.Column(db.String, db.ForeignKey("entity.id"), nullable=False)
-    agent_id = db.Column(db.String, db.ForeignKey("agent.id"), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    entity_id = db.Column(db.Integer, db.ForeignKey("entity.id"), nullable=False)
+    agent_id = db.Column(db.Integer, db.ForeignKey("agent.id"), nullable=False)
     role = db.Column(db.String, nullable=True, comment="代理在实体中的角色")
 
 
@@ -300,7 +391,7 @@ class ActivityDescription(db.Model):
 
     __tablename__ = "activity_description"
 
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False, comment="名称")
     version = db.Column(db.String, nullable=True, comment="版本号")
     description = db.Column(db.String, nullable=True, comment="描述")
@@ -328,7 +419,7 @@ class EntityDescription(db.Model):
 
     __tablename__ = "entity_description"
 
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False, comment="名称")
     description = db.Column(db.String, nullable=True, comment="描述")
     docurl = db.Column(db.String, nullable=True, comment="文档URL")
@@ -340,16 +431,16 @@ class UsageDescription(db.Model):
 
     __tablename__ = "usage_description"
 
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     role = db.Column(db.String, nullable=False, comment="角色")
     description = db.Column(db.String, nullable=True, comment="描述")
     type = db.Column(db.String, nullable=False, comment="类型")
     multiplicity = db.Column(db.String, nullable=False, comment=" multiplicity")
     activity_description_id = db.Column(
-        db.String, db.ForeignKey("activity_description.id"), nullable=False
+        db.Integer, db.ForeignKey("activity_description.id"), nullable=False
     )
     entity_description_id = db.Column(
-        db.String, db.ForeignKey("entity_description.id"), nullable=True
+        db.Integer, db.ForeignKey("entity_description.id"), nullable=True
     )
     entity_description = db.relationship(
         "EntityDescription", backref="usage_descriptions"
@@ -361,16 +452,16 @@ class GenerationDescription(db.Model):
 
     __tablename__ = "generation_description"
 
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     role = db.Column(db.String, nullable=False, comment="角色")
     description = db.Column(db.String, nullable=True, comment="描述")
     type = db.Column(db.String, nullable=False, comment="类型")
     multiplicity = db.Column(db.String, nullable=False, comment=" multiplicity")
     activity_description_id = db.Column(
-        db.String, db.ForeignKey("activity_description.id"), nullable=False
+        db.Integer, db.ForeignKey("activity_description.id"), nullable=False
     )
     entity_description_id = db.Column(
-        db.String, db.ForeignKey("entity_description.id"), nullable=True
+        db.Integer, db.ForeignKey("entity_description.id"), nullable=True
     )
     entity_description = db.relationship(
         "EntityDescription", backref="generation_descriptions"
@@ -384,9 +475,9 @@ class DatasetEntity(Entity):
     __tablename__ = "dataset_entity"
     __mapper_args__ = {"polymorphic_identity": "dataset"}
 
-    id = db.Column(db.String, db.ForeignKey("entity.id"), primary_key=True)
+    id = db.Column(db.Integer, db.ForeignKey("entity.id"), primary_key=True)
     dataset_description_id = db.Column(
-        db.String, db.ForeignKey("dataset_description.id"), nullable=True
+        db.Integer, db.ForeignKey("dataset_description.id"), nullable=True
     )
     dataset_description = db.relationship(
         "DatasetDescription", backref="dataset_entities"
@@ -398,7 +489,7 @@ class DatasetDescription(EntityDescription):
 
     __tablename__ = "dataset_description"
 
-    id = db.Column(db.String, db.ForeignKey("entity_description.id"), primary_key=True)
+    id = db.Column(db.Integer, db.ForeignKey("entity_description.id"), primary_key=True)
     content_type = db.Column(db.String, nullable=False, comment="内容类型")
 
 
@@ -408,10 +499,10 @@ class ValueEntity(Entity):
     __tablename__ = "value_entity"
     __mapper_args__ = {"polymorphic_identity": "value"}
 
-    id = db.Column(db.String, db.ForeignKey("entity.id"), primary_key=True)
+    id = db.Column(db.Integer, db.ForeignKey("entity.id"), primary_key=True)
     value = db.Column(db.String, nullable=False, comment="值")
     value_description_id = db.Column(
-        db.String, db.ForeignKey("value_description.id"), nullable=True
+        db.Integer, db.ForeignKey("value_description.id"), nullable=True
     )
     value_description = db.relationship("ValueDescription", backref="value_entities")
 
@@ -421,7 +512,7 @@ class ValueDescription(EntityDescription):
 
     __tablename__ = "value_description"
 
-    id = db.Column(db.String, db.ForeignKey("entity_description.id"), primary_key=True)
+    id = db.Column(db.Integer, db.ForeignKey("entity_description.id"), primary_key=True)
     value_type = db.Column(db.String, nullable=False, comment="值类型")
     unit = db.Column(db.String, nullable=True, comment="单位")
     ucd = db.Column(db.String, nullable=True, comment="UCD")
@@ -434,11 +525,11 @@ class Parameter(db.Model):
 
     __tablename__ = "parameter"
 
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False, comment="名称")
     value = db.Column(db.String, nullable=False, comment="值")
     value_entity_id = db.Column(
-        db.String, db.ForeignKey("value_entity.id"), nullable=True
+        db.Integer, db.ForeignKey("value_entity.id"), nullable=True
     )
     value_entity = db.relationship("ValueEntity", backref="parameters")
 
@@ -448,7 +539,7 @@ class ParameterDescription(db.Model):
 
     __tablename__ = "parameter_description"
 
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False, comment="名称")
     value_type = db.Column(db.String, nullable=False, comment="值类型")
     description = db.Column(db.String, nullable=True, comment="描述")
@@ -460,7 +551,7 @@ class ParameterDescription(db.Model):
     options = db.Column(db.JSON, nullable=True, comment="选项")
     default = db.Column(db.String, nullable=True, comment="默认值")
     activity_description_id = db.Column(
-        db.String, db.ForeignKey("activity_description.id"), nullable=False
+        db.Integer, db.ForeignKey("activity_description.id"), nullable=False
     )
 
 
@@ -469,7 +560,7 @@ class ConfigFile(db.Model):
 
     __tablename__ = "config_file"
 
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False, comment="名称")
     location = db.Column(db.String, nullable=False, comment="位置")
     comment = db.Column(db.String, nullable=True, comment="备注")
@@ -480,12 +571,12 @@ class ConfigFileDescription(db.Model):
 
     __tablename__ = "config_file_description"
 
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False, comment="名称")
     content_type = db.Column(db.String, nullable=False, comment="内容类型")
     description = db.Column(db.String, nullable=True, comment="描述")
     activity_description_id = db.Column(
-        db.String, db.ForeignKey("activity_description.id"), nullable=False
+        db.Integer, db.ForeignKey("activity_description.id"), nullable=False
     )
 
 
@@ -494,14 +585,14 @@ class WasConfiguredBy(db.Model):
 
     __tablename__ = "was_configured_by"
 
-    id = db.Column(db.String, primary_key=True)
-    activity_id = db.Column(db.String, db.ForeignKey("activity.id"), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    activity_id = db.Column(db.Integer, db.ForeignKey("activity.id"), nullable=False)
     artefact_type = db.Column(
         db.Enum("Parameter", "ConfigFile", name="config_artefact_type"), nullable=False
     )
-    parameter_id = db.Column(db.String, db.ForeignKey("parameter.id"), nullable=True)
+    parameter_id = db.Column(db.Integer, db.ForeignKey("parameter.id"), nullable=True)
     config_file_id = db.Column(
-        db.String, db.ForeignKey("config_file.id"), nullable=True
+        db.Integer, db.ForeignKey("config_file.id"), nullable=True
     )
     parameter = db.relationship("Parameter", backref="configurations")
     config_file = db.relationship("ConfigFile", backref="configurations")

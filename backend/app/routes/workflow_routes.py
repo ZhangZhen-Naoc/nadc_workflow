@@ -2,8 +2,8 @@ from datetime import datetime
 
 from apiflask import APIBlueprint
 
-import models
-from models import Action, Workflow
+import app.models as models
+from app.models import Action, Workflow
 from schemas import (
     ActionListResponse,
     LogResponse,
